@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+    java-web-app:
+        build: .
+        container_name: java-web-app
+        ports:
+            - "8090:8080"
+        restart: unless-stopped
