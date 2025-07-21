@@ -37,12 +37,7 @@ pipeline {
     }
 
     stage('Deploy to Azure App Service') {
-      agent {
-          docker {
-              image 'mcr.microsoft.com/azure-cli'
-              args '-v /var/jenkins_home/.azure:/root/.azure'
-          }
-      }
+      agent { label 'agent-azure' }
       steps {
         sh "echo $HOME"
         sh "ls -lh $HOME"
