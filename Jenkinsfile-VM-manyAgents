@@ -103,7 +103,9 @@ pipeline {
 
         // Deletes all files/folders from the Jenkins agent's workspace
         // Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
+        sh "ls -alR ${env.WORKSPACE}"
         cleanWs()
+        sh "ls -alR ${env.WORKSPACE}"
       }
     }
   }
