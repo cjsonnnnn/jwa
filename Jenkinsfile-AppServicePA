@@ -37,7 +37,7 @@ pipeline {
     }
 
     stage('Deploy to Azure App Service') {
-      agent { label 'agent-azure' }
+      agent { label 'agent-maven' }
       steps {
         sh "echo $HOME"
         sh "ls -lh $HOME"
