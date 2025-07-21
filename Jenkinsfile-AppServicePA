@@ -37,10 +37,16 @@ pipeline {
     }
 
     stage('Deploy to Azure App Service') {
-      agent { label 'agent-jenkins' }
+      agent {
+          docker {
+              image 'mcr.microsoft.com/azure-cli'
+              args '-v /var/jenkins_home/.azure:/root/.azure'
+          }
+      }
       steps {
         sh "echo $HOME"
-        sh "ls -lh"
+        sh "ls -lh $HOME"
+        sh "ls -lh /var/jenkins_home"
 
         // 🔽 Download the JAR for deployment
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
