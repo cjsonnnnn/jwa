@@ -1,8 +1,3 @@
-def remote = [:]
-remote.name = 'vm-lab1'
-remote.host = '192.168.18.21'
-remote.allowAnyHosts = true
-
 pipeline {
   agent any
 
@@ -15,7 +10,8 @@ pipeline {
   }
 
   parameters {
-    string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy')
+    string(name: 'IMAGE_TAG', description: 'Version tag (used for JAR build and artifact naming)')
+    string(name: 'TENANT_ID', description: '')
   }
 
   environment {
@@ -28,7 +24,7 @@ pipeline {
       agent { label 'agent-maven' }
       steps {
         script {
-          echo "🧪 Setting Maven version to ${params.IMAGE_TAG}"
+          // 🧪 Setting Maven version
           sh "mvn versions:set -DnewVersion=${params.IMAGE_TAG} -DgenerateBackupPoms=false"
         }
 
@@ -46,48 +42,27 @@ pipeline {
       }
     }
 
-    stage('Docker Build & Push') {
-      agent { label 'agent-dind' }
+    stage('Deploy to Azure App Service') {
+      agent { label 'agent-maven' }
       steps {
-        // 📥 Downloading from Artifactory
-        jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar"
+        // 🔽 Download the JAR for deployment
+        jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
+        sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
 
-        // 🦆 Renaming file
-        sh "cp target/demo-${params.IMAGE_TAG}.jar app.jar"
+        // 🔐 Azure login (interactive browser disabled)
+        sh '''
+          az logout || true
+          az login --service-principal -u $AZURE_CREDS_USR -p $AZURE_CREDS_PSW --tenant ${params.TENANT_ID} >/dev/null
+        '''
 
-        // 📄 Listing built files
-        sh "ls -lh"
-
-        // 🔨 Building Docker image
-        sh "docker build -t jpiay/jwa:${params.IMAGE_TAG} ."
-
-        // 🔐 Docker login
-        sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
-
-        // 🚀 Pushing Docker image to Docker Hub
-        sh "docker push jpiay/jwa:${params.IMAGE_TAG}"
-      }
-    }
-
-    stage('Deploy to Remote Server') {
-      agent { label 'agent-dind' }
-      steps {
-        script {
-          // 🖥️ Deploying
-          remote.user = env.PI_CREDS_USR
-          remote.password = env.PI_CREDS_PSW
-
-          sshCommand(remote: remote, command: """
-            echo '📦 Pulling Docker image jpiay/jwa:${params.IMAGE_TAG}'
-            sudo docker pull jpiay/jwa:${params.IMAGE_TAG}
-
-            echo '🧹 Stopping existing container if exists'
-            sudo docker rm -f java-web-app || true
-
-            echo '🚀 Starting new container'
-            sudo docker run -d --name java-web-app -p 8090:8080 --restart unless-stopped jpiay/jwa:${params.IMAGE_TAG}
-          """)
-        }
+        // 🚀 Deploy the JAR to App Service
+        sh '''
+          az webapp deploy \
+            --resource-group BelugaBoxResourceGroup01 \
+            --name JWAAppServiceCodeTEST \
+            --type jar \
+            --src-path app.jar
+        '''
       }
     }
   }
@@ -107,6 +82,22 @@ pipeline {
         cleanWs()
         sh "ls -alR ${env.WORKSPACE}"
       }
+    }
+  }
+
+  post {
+    always {
+      // To prevent credentials being cached in memory or reused in other builds, and improve security
+      sh "az logout || true"
+
+      // Avoid race conditions (like logouts or container kills that take a second to finish)
+      sleep(5)
+
+      // Deletes all files/folders from the Jenkins agent's workspace
+      // Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
+      sh "ls -alR ${env.WORKSPACE}"
+      cleanWs()
+      sh "ls -alR ${env.WORKSPACE}"
     }
   }
 }

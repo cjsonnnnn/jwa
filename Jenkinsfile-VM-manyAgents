@@ -15,7 +15,7 @@ pipeline {
   }
 
   parameters {
-    string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy')
+    string(name: 'IMAGE_TAG', description: 'Version tag (used for JAR build and artifact naming)')
   }
 
   environment {
@@ -28,7 +28,7 @@ pipeline {
       agent { label 'agent-maven' }
       steps {
         script {
-          echo "🧪 Setting Maven version to ${params.IMAGE_TAG}"
+          // 🧪 Setting Maven version
           sh "mvn versions:set -DnewVersion=${params.IMAGE_TAG} -DgenerateBackupPoms=false"
         }
 
@@ -53,7 +53,7 @@ pipeline {
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar"
 
         // 🦆 Renaming file
-        sh "cp target/demo-${params.IMAGE_TAG}.jar app.jar"
+        sh "mv target/demo-${params.IMAGE_TAG}.jar app.jar"
 
         // 📄 Listing built files
         sh "ls -lh"
