@@ -53,13 +53,13 @@ pipeline {
         sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
 
         // 🚀 Deploy the JAR to App Service
-        sh "
+        sh """
           'az webapp deploy \
             --resource-group BelugaBoxResourceGroup01 \
             --name JWAAppServiceCodeTEST \
             --type jar \
             --src-path app.jar'
-        "
+        """
       }
     }
   }
