@@ -32,16 +32,16 @@ pipeline {
           sh "mvn versions:set -DnewVersion=${params.IMAGE_TAG} -DgenerateBackupPoms=false"
         }
 
-        echo "🔨 Building JAR"
+        // 🔨 Building JAR
         sh "mvn clean package"
 
-        echo "📄 Listing built files"
+        // 📄 Listing built files
         sh "ls -lh target/"
 
-        echo "📦 Uploading to Artifactory"
+        // 📦 Uploading to Artifactory
         jf "rt u target/demo-${params.IMAGE_TAG}.jar example-repo-local/target/ --flat=true"
 
-        echo "📝 Publishing build info"
+        // 📝 Publishing build info
         jf "rt bp"
       }
     }
@@ -49,22 +49,22 @@ pipeline {
     stage('Docker Build & Push') {
       agent { label 'agent-dind' }
       steps {
-        echo "📥 Downloading from Artifactory"
+        // 📥 Downloading from Artifactory
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar"
 
-        echo "🦆 Renaming file"
+        // 🦆 Renaming file
         sh "cp target/demo-${params.IMAGE_TAG}.jar app.jar"
 
-        echo "📄 Listing built files"
+        // 📄 Listing built files
         sh "ls -lh"
 
-        echo "🔨 Building Docker image jpiay/jwa:${params.IMAGE_TAG}"
+        // 🔨 Building Docker image
         sh "docker build -t jpiay/jwa:${params.IMAGE_TAG} ."
 
-        echo "🔐 Docker login"
+        // 🔐 Docker login
         sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
 
-        echo "🚀 Pushing Docker image to Docker Hub"
+        // 🚀 Pushing Docker image to Docker Hub
         sh "docker push jpiay/jwa:${params.IMAGE_TAG}"
       }
     }
@@ -73,7 +73,7 @@ pipeline {
       agent { label 'agent-dind' }
       steps {
         script {
-          echo "🖥️ Deploying to ${remote.host} with user ${env.PI_CREDS_USR}"
+          // 🖥️ Deploying
           remote.user = env.PI_CREDS_USR
           remote.password = env.PI_CREDS_PSW
 
@@ -95,7 +95,7 @@ pipeline {
   post {
     always {
       script {
-        echo "🧹 Cleaning up Docker session and workspace"
+        // 🧹 Cleaning up Docker session and workspace
         sh "docker logout || true"
         sleep(5)
         cleanWs()
