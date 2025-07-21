@@ -38,8 +38,8 @@ pipeline {
 
     stage('Deploy to Azure App Service') {
       steps {
-        sh 'git --version'
-        sh 'which git'
+        sh "git --version"
+        sh "which git"
         sh "echo $HOME"
         sh "ls -la $HOME"
         sh "ls -la /var/jenkins_home"
@@ -53,13 +53,13 @@ pipeline {
         sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
 
         // 🚀 Deploy the JAR to App Service
-        sh '''
-          az webapp deploy \
+        sh "
+          'az webapp deploy \
             --resource-group BelugaBoxResourceGroup01 \
             --name JWAAppServiceCodeTEST \
             --type jar \
-            --src-path app.jar
-        '''
+            --src-path app.jar'
+        "
       }
     }
   }
