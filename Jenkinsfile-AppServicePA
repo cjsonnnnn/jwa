@@ -39,16 +39,18 @@ pipeline {
     stage('Deploy to Azure App Service') {
       agent { label 'agent-azure' }
       steps {
+        sh 'git --version'
+        sh 'which git'
         sh "echo $HOME"
         sh "ls -lh $HOME"
         sh "ls -lh /var/jenkins_home"
 
+        // 📦 Deploying to Azure App Service using personal login...
+        sh "az account show"
+
         // 🔽 Download the JAR for deployment
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
         sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
-
-        // 📦 Deploying to Azure App Service using personal login...
-        sh "az account show"
 
         // 🚀 Deploy the JAR to App Service
         sh '''
