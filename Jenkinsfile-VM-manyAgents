@@ -78,13 +78,13 @@ pipeline {
           remote.password = env.PI_CREDS_PSW
 
           sshCommand(remote: remote, command: """
-            echo '📦 Pulling Docker image jpiay/jwa:${params.IMAGE_TAG}'
+            // 📦 Pulling Docker image
             sudo docker pull jpiay/jwa:${params.IMAGE_TAG}
 
-            echo '🧹 Stopping existing container if exists'
+            // 🧹 Stopping existing container if exists
             sudo docker rm -f java-web-app || true
 
-            echo '🚀 Starting new container'
+            // 🚀 Starting new container
             sudo docker run -d --name java-web-app -p 8090:8080 --restart unless-stopped jpiay/jwa:${params.IMAGE_TAG}
           """)
         }
@@ -101,7 +101,7 @@ pipeline {
         // Avoid race conditions (like logouts or container kills that take a second to finish)
         sleep(5)
 
-        // Deletes all files/folders from the Jenkins agent's workspace
+        // Deletes all files or folders from the Jenkins agent's workspace
         // Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
         sh "ls -alR ${env.WORKSPACE}"
         cleanWs()
