@@ -40,7 +40,6 @@ pipeline {
       steps {
         sh "git --version"
         sh "which git"
-        sh "echo $HOME"
         sh "ls -la $HOME"
         sh "ls -la /var/jenkins_home"
 
