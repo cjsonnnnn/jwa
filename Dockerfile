@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Copy source code
 # COPY . .
-COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
+COPY app.jar app.jar
 
 # Build the application using Maven
 # RUN apt-get update && apt-get install -y maven && \

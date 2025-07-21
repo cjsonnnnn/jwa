@@ -33,10 +33,10 @@ pipeline {
         }
 
         echo "🔨 Building JAR"
-        sh 'mvn clean package'
+        sh "mvn clean package"
 
         echo "📄 Listing built files"
-        sh 'ls -lh target/'
+        sh "ls -lh target/"
 
         echo "📦 Uploading to Artifactory"
         jf "rt u target/demo-${params.IMAGE_TAG}.jar example-repo-local/target/"
@@ -51,6 +51,12 @@ pipeline {
       steps {
         echo "📥 Downloading from Artifactory"
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar"
+
+        echo "🦆 Renaming file"
+        sh "cp target/demo-${params.IMAGE_TAG}.jar app.jar"
+
+        echo "📄 Listing built files"
+        sh "ls -lh"
 
         echo "🔨 Building Docker image jpiay/jwa:${params.IMAGE_TAG}"
         sh "docker build -t jpiay/jwa:${params.IMAGE_TAG} ."
