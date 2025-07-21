@@ -54,11 +54,11 @@ pipeline {
 
         // 🚀 Deploy the JAR to App Service
         sh """
-          'az webapp deploy \
+          az webapp deploy \
             --resource-group BelugaBoxResourceGroup01 \
             --name JWAAppServiceCodeTEST \
             --type jar \
-            --src-path app.jar'
+            --src-path app.jar
         """
       }
     }
