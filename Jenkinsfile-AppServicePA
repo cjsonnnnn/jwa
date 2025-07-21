@@ -1,17 +1,17 @@
 pipeline {
   agent any
 
-  tools {
-    jfrog 'jfrog-cli'
-  }
+  // tools {
+  //   jfrog 'jfrog-cli'
+  // }
 
   options {
     buildDiscarder(logRotator(numToKeepStr: '5'))
   }
 
-  parameters {
-    string(name: 'IMAGE_TAG', description: 'Version tag (used for JAR build and artifact naming)')
-  }
+  // parameters {
+  //   string(name: 'IMAGE_TAG', description: 'Version tag (used for JAR build and artifact naming)')
+  // }
 
   stages {
     // stage('Build and Publish to Artifactory') {
