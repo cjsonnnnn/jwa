@@ -27,42 +27,64 @@ pipeline {
     stage('Build and Publish to Artifactory') {
       agent { label 'agent-maven' }
       steps {
+        script {
+          echo "🧪 Setting Maven version to ${params.IMAGE_TAG}"
+          sh "mvn versions:set -DnewVersion=${params.IMAGE_TAG} -DgenerateBackupPoms=false"
+        }
+
+        echo "🔨 Building JAR"
         sh 'mvn clean package'
 
-        // Publish build info
-        jf "rt bp"
+        echo "📄 Listing built files"
+        sh 'ls -lh target/'
 
-        // Upload .jar to Artifactory
-        jf "rt u target/*.jar example-repo-local/"
+        echo "📛 Renaming JAR to match IMAGE_TAG"
+        sh "mv target/demo-*.jar target/demo-${params.IMAGE_TAG}.jar"
+
+        echo "📦 Uploading to Artifactory"
+        jf "rt u target/demo-${params.IMAGE_TAG}.jar example-repo-local/target/"
+
+        echo "📝 Publishing build info"
+        jf "rt bp"
       }
     }
 
-    stage('Docker') {
+    stage('Docker Build & Push') {
       agent { label 'agent-dind' }
       steps {
-        // Download the built .jar file
+        echo "📥 Downloading from Artifactory"
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
 
-        // Build Docker image
+        echo "🔨 Building Docker image jpiay/jwa:${params.IMAGE_TAG}"
         sh "docker build -t jpiay/jwa:${params.IMAGE_TAG} ."
 
-        // Docker login
+        echo "🔐 Docker login"
         sh "echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin"
 
-        // Push to Docker Hub
+        echo "🚀 Pushing Docker image to Docker Hub"
         sh "docker push jpiay/jwa:${params.IMAGE_TAG}"
+      }
+    }
 
-        // Deploy remotely
+    stage('Deploy to Remote Server') {
+      agent { label 'agent-dind' }
+      steps {
         script {
+          echo "🖥️ Deploying to ${remote.host} with user ${env.PI_CREDS_USR}"
           remote.user = env.PI_CREDS_USR
           remote.password = env.PI_CREDS_PSW
-        }
 
-        sshCommand(remote: remote, command: """
-          sudo docker pull jpiay/jwa:${params.IMAGE_TAG}
-          sudo docker rm -f java-web-app || true
-          sudo docker run -d --name java-web-app -p 8090:8080 --restart unless-stopped jpiay/jwa:${params.IMAGE_TAG}
-        """)
+          sshCommand(remote: remote, command: """
+            echo '📦 Pulling Docker image jpiay/jwa:${params.IMAGE_TAG}'
+            sudo docker pull jpiay/jwa:${params.IMAGE_TAG}
+
+            echo '🧹 Stopping existing container if exists'
+            sudo docker rm -f java-web-app || true
+
+            echo '🚀 Starting new container'
+            sudo docker run -d --name java-web-app -p 8090:8080 --restart unless-stopped jpiay/jwa:${params.IMAGE_TAG}
+          """)
+        }
       }
     }
   }
@@ -70,7 +92,7 @@ pipeline {
   post {
     always {
       script {
-        // Optional: Clean up Docker and workspace
+        echo "🧹 Cleaning up Docker session and workspace"
         sh "docker logout || true"
         sleep(5)
         cleanWs()
