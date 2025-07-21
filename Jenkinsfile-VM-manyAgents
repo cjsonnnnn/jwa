@@ -15,7 +15,7 @@ pipeline {
   }
 
   parameters {
-    string(name: 'IMAGE_TAG', defaultValue: '0.0.112', description: 'Docker image tag to deploy')
+    string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy')
   }
 
   environment {
