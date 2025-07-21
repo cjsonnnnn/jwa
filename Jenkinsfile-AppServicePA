@@ -37,7 +37,6 @@ pipeline {
     }
 
     stage('Deploy to Azure App Service') {
-      sh "echo $HOME"
       agent {
         docker {
           image 'mcr.microsoft.com/azure-cli'
@@ -45,6 +44,7 @@ pipeline {
         }
       }
       steps {
+        sh "echo $HOME"
         // 🔽 Download the JAR for deployment
         jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
         sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
