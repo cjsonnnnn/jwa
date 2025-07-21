@@ -95,9 +95,14 @@ pipeline {
   post {
     always {
       script {
-        // 🧹 Cleaning up Docker session and workspace
+        // To prevent credentials being cached in memory or reused in other builds, and improve security
         sh "docker logout || true"
+
+        // Avoid race conditions (like logouts or container kills that take a second to finish)
         sleep(5)
+
+        // Deletes all files/folders from the Jenkins agent's workspace
+        // Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
         cleanWs()
       }
     }
