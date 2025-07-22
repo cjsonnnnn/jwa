@@ -14,9 +14,9 @@ pipeline {
   }
 
   environment {
-    AZURE_APP = credentials('azure-appid')
-    AZURE_SECRET = credentials('azure-secret')
-    AZURE_TENANT = credentials('azure-tenant-id')
+    AZURE_APP_ID = credentials('azure-app-id')
+    AZURE_SECRET_KEY = credentials('azure-secret-key')
+    AZURE_TENANT_ID = credentials('azure-tenant-id')
   }
 
   stages {
@@ -58,9 +58,9 @@ pipeline {
         sh "az version"
         sh '''
           az login --service-principal \
-            --username "$AZURE_APP" \
-            --password "$AZURE_SECRET" \
-            --tenant "$AZURE_TENANT"
+            --username "$AZURE_APP_ID" \
+            --password "$AZURE_SECRET_KEY" \
+            --tenant "$AZURE_TENANT_ID"
         '''
         sh "az account show"
 
