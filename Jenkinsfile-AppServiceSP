@@ -16,7 +16,7 @@ pipeline {
   environment {
     AZURE_APP = credentials('azure-appid')
     AZURE_SECRET = credentials('azure-secret')
-    AZURE_TENANT = credentials('azure-tenant')
+    AZURE_TENANT = credentials('azure-tenant-id')
   }
 
   stages {
