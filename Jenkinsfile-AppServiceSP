@@ -29,7 +29,9 @@ pipeline {
         }
 
         // 🔨 Building JAR
-        sh "mvn clean package"
+        retry(3) {
+          sh "mvn clean package"
+        }
 
         // 📄 Listing built files
         sh "ls -lh target/"
