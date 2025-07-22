@@ -23,6 +23,9 @@ pipeline {
     stage('Build and Publish to Artifactory') {
       agent { label 'agent-maven' }
       steps {
+        sh "ls -la"
+        sh "ls -la $HOME"
+
         // ⚙️ Set server to use 
         jf 'c use jfart-fos-1'
 
@@ -51,6 +54,7 @@ pipeline {
       steps {
         sh "git --version"
         sh "which git"
+        sh "ls -la"
         sh "ls -la $HOME"
 
         // 🔐 Logging in to Azure using Service Principal...
