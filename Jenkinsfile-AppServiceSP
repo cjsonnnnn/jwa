@@ -23,6 +23,7 @@ pipeline {
     stage('Build and Publish to Artifactory') {
       agent { label 'agent-maven' }
       steps {
+        sh "pwd"
         sh "ls -la"
         sh "ls -la $HOME"
 
@@ -54,6 +55,7 @@ pipeline {
       steps {
         sh "git --version"
         sh "which git"
+        sh "pwd"
         sh "ls -la"
         sh "ls -la $HOME"
 

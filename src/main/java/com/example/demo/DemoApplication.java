@@ -15,6 +15,6 @@ public class DemoApplication {
 
 	@RequestMapping("/")
   public String home() {
-    return "Hello, Jason! The pipeline works as expected! Changes: Network P2!";
+    return "Hello, Jason! The pipeline works as expected! Changes: debug!";
   }
 }
