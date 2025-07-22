@@ -23,6 +23,9 @@ pipeline {
     stage('Build and Publish to Artifactory') {
       agent { label 'agent-maven' }
       steps {
+        // ⚙️ Set server to use 
+        jf 'c use jfart-fos-1'
+
         script {
           // 🧪 Setting Maven version
           sh "mvn versions:set -DnewVersion=${params.IMAGE_TAG} -DgenerateBackupPoms=false"
