@@ -70,7 +70,9 @@ pipeline {
         sh "az account show"
 
         // 🔽 Download the JAR for deployment
-        jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
+        retry(3) {
+          jf "rt dl example-repo-local/target/demo-${params.IMAGE_TAG}.jar --flat=true"
+        }
         sh "mv demo-${params.IMAGE_TAG}.jar app.jar"
 
         // 🚀 Deploy the JAR to App Service
