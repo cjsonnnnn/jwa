@@ -75,21 +75,21 @@ pipeline {
     }
   }
 
-  post {
-    always {
-      script {
-        // // To prevent credentials being cached in memory or reused in other builds, and improve security
-        // sh "az logout || true"
+  // post {
+  //   always {
+  //     script {
+  //       // To prevent credentials being cached in memory or reused in other builds, and improve security
+  //       sh "az logout || true"
 
-        // // Avoid race conditions (like logouts or container kills that take a second to finish)
-        // sleep(5)
+  //       // Avoid race conditions (like logouts or container kills that take a second to finish)
+  //       sleep(5)
 
-        // Deletes all files/folders from the Jenkins agent's workspace
-        // Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
-        sh "ls -alR ${env.WORKSPACE}"
-        cleanWs()
-        sh "ls -alR ${env.WORKSPACE}"
-      }
-    }
-  }
+  //       Deletes all files/folders from the Jenkins agent's workspace
+  //       Ensures next builds start fresh, avoiding stale or leftover files (e.g., JARs, artifacts, Dockerfiles, logs).
+  //       sh "ls -alR ${env.WORKSPACE}"
+  //       cleanWs()
+  //       sh "ls -alR ${env.WORKSPACE}"
+  //     }
+  //   }
+  // }
 }
