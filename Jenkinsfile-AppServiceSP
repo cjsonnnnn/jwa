@@ -52,7 +52,6 @@ pipeline {
         sh "git --version"
         sh "which git"
         sh "ls -la $HOME"
-        sh "ls -la /var/jenkins_home"
 
         // 🔐 Logging in to Azure using Service Principal...
         sh "az version"
