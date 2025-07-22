@@ -77,7 +77,7 @@ pipeline {
 
   post {
     always {
-      node {
+      node('agent-azure') {
         script {
           // To prevent credentials being cached in memory or reused in other builds, and improve security
           sh "az logout || true"
